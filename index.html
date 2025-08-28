@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sport Management Quiz</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .quiz-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            max-width: 700px;
+            width: 100%;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .quiz-header {
+            margin-bottom: 30px;
+        }
+
+        .quiz-title {
+            color: #333;
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .quiz-subtitle {
+            color: #666;
+            font-size: 16px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .question-container {
+            text-align: left;
+            margin-bottom: 30px;
+        }
+
+        .question-number {
+            color: #667eea;
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .question-text {
+            font-size: 20px;
+            color: #333;
+            line-height: 1.5;
+            margin-bottom: 25px;
+            font-weight: 500;
+        }
+
+        .options-container {
+            display: grid;
+            gap: 12px;
+        }
+
+        .option {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            padding: 18px 20px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 16px;
+            text-align: left;
+        }
+
+        .option:hover {
+            border-color: #667eea;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.1);
+        }
+
+        .option.selected-multiple {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
+        .submit-button {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin: 20px 10px 0 0;
+        }
+
+        .submit-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(40, 167, 69, 0.3);
+        }
+
+        .option.correct {
+            border-color: #28a745;
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .option.incorrect {
+            border-color: #dc3545;
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .option.disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .feedback {
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 10px;
+            font-weight: 500;
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+        }
+
+        .feedback.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .feedback.correct {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .feedback.incorrect {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .next-button {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-top: 20px;
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        .next-button.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .next-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .score-display {
+            font-size: 18px;
+            color: #333;
+            margin: 20px 0;
+            font-weight: 600;
+        }
+
+        .final-score {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .final-score h2 {
+            color: #333;
+            font-size: 32px;
+            margin-bottom: 20px;
+        }
+
+        .score-circle {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 20px auto;
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .restart-button {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.2s ease;
+        }
+
+        .restart-button:hover {
+            background: #218838;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <div class="quiz-container">
+        <div class="quiz-header">
+            <h1 class="quiz-title">Sport Management Quiz</h1>
+            <p class="quiz-subtitle">Challenges and Benefits</p>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+        </div>
+
+        <div id="quizContent">
+            <div class="question-container">
+                <div class="question-number" id="questionNumber"></div>
+                <div class="question-text" id="questionText"></div>
+                <div class="options-container" id="optionsContainer"></div>
+            </div>
+            
+            <div class="feedback" id="feedback"></div>
+            <button class="next-button" id="nextButton" onclick="nextQuestion()">Next Question</button>
+            
+            <div class="score-display" id="scoreDisplay"></div>
+        </div>
+
+        <div id="finalScore" class="final-score" style="display: none;">
+            <h2>Quiz Complete!</h2>
+            <div class="score-circle" id="finalScoreCircle"></div>
+            <p id="finalScoreText"></p>
+            <button class="restart-button" onclick="restartQuiz()">Try Again</button>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                question: "What is identified as the biggest challenge of sport management?",
+                options: ["Financial capacity", "Lack of high-standard staff", "Participation", "Poor governance"],
+                correct: 2
+            },
+            {
+                question: "Which of the following are considered fundamental questions for the future of sport?",
+                options: ["How to measure community evidence and levels of social trust", "What impacts behaviour and decisions", "Who runs sport and how sport is run", "How to provide the right service at the right time"],
+                correct: [0, 1, 2, 3],
+                type: "multiple"
+            },
+            {
+                question: "Independent research by Sheffield Hallam University estimates that community sport and activity generate what amount of social and economic value in England?",
+                options: ["£42 billion", "£72 billion", "£85.5 billion", "£9.5 billion"],
+                correct: 2
+            },
+            {
+                question: "For every £1 spent on community sport and activity, what is the estimated return on investment (ROI)?",
+                options: ["£1.7 billion", "£2.50", "£3.91", "£5.2 billion"],
+                correct: 2
+            },
+            {
+                question: "Regular physical activity is shown to reduce the risk of Type 2 Diabetes by up to what percentage?",
+                options: ["20%", "30%", "35%", "40%"],
+                correct: 3
+            },
+            {
+                question: "In 2021/22, what percentage of adults aged 18 years and over in England were estimated to be overweight or living with obesity?",
+                options: ["22.7 per cent", "49 per cent", "63.8 per cent", "1 in 10 adults"],
+                correct: 2
+            },
+            {
+                question: "Which two factors are identified as key determinants of health and are considered more important to health outcomes than levels of smoking or obesity?",
+                options: ["Financial capacity and education", "Good governance and social engagement", "Exercise and personal social networks", "Local facilities and access"],
+                correct: 2
+            },
+            {
+                question: "Based on the MOVES Modelling Output for a physical activity improvement scheme, what is the estimated long-term reduction in NHS expenditure?",
+                options: ["Over £22 million", "£232 million", "£462 million", "£3.3 billion"],
+                correct: 2
+            },
+            {
+                question: "If just over 1 million of England's inactive population engaged in a prescribed leisure services programme, what is the estimated direct saving to the NHS for the cost of treating diseases over a 10-year period?",
+                options: ["£22 million", "£314 million", "£462 million", "£1 billion"],
+                correct: 1
+            },
+            {
+                question: "Which of the following is one of the Four Key principles for developing sport, identified as a priority for the next 7 years in the Sport England Implementation plan?",
+                options: ["Complexity", "Governance", "Equity", "Measurement"],
+                correct: 2
+            }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let answered = false;
+        let selectedAnswers = [];
+
+        function loadQuestion() {
+            const question = questions[currentQuestion];
+            
+            document.getElementById('questionNumber').textContent = `Question ${currentQuestion + 1} of ${questions.length}`;
+            document.getElementById('questionText').textContent = question.question;
+            
+            const optionsContainer = document.getElementById('optionsContainer');
+            optionsContainer.innerHTML = '';
+            
+            // Add instruction for multiple choice questions
+            if (question.type === 'multiple') {
+                const instruction = document.createElement('div');
+                instruction.style.cssText = 'font-style: italic; color: #666; margin-bottom: 15px; font-size: 14px;';
+                instruction.textContent = 'Select all correct answers:';
+                optionsContainer.appendChild(instruction);
+            }
+            
+            question.options.forEach((option, index) => {
+                const optionElement = document.createElement('div');
+                optionElement.className = 'option';
+                optionElement.textContent = option;
+                
+                if (question.type === 'multiple') {
+                    optionElement.onclick = () => toggleMultipleAnswer(index);
+                } else {
+                    optionElement.onclick = () => selectAnswer(index);
+                }
+                
+                optionsContainer.appendChild(optionElement);
+            });
+            
+            // Add submit button for multiple choice questions
+            if (question.type === 'multiple') {
+                const submitButton = document.createElement('button');
+                submitButton.className = 'submit-button';
+                submitButton.textContent = 'Submit Answers';
+                submitButton.onclick = () => submitMultipleAnswers();
+                optionsContainer.appendChild(submitButton);
+            }
+            
+            document.getElementById('feedback').className = 'feedback';
+            document.getElementById('nextButton').className = 'next-button';
+            
+            updateProgress();
+            updateScore();
+            answered = false;
+            selectedAnswers = [];
+        }
+
+        function toggleMultipleAnswer(index) {
+            if (answered) return;
+            
+            const options = document.querySelectorAll('.option');
+            const option = options[index];
+            
+            if (selectedAnswers.includes(index)) {
+                selectedAnswers = selectedAnswers.filter(i => i !== index);
+                option.classList.remove('selected-multiple');
+            } else {
+                selectedAnswers.push(index);
+                option.classList.add('selected-multiple');
+            }
+        }
+
+        function submitMultipleAnswers() {
+            if (answered) return;
+            
+            answered = true;
+            const question = questions[currentQuestion];
+            const options = document.querySelectorAll('.option');
+            const feedback = document.getElementById('feedback');
+            const nextButton = document.getElementById('nextButton');
+            const submitButton = document.querySelector('.submit-button');
+            
+            // Disable all interactions
+            options.forEach(option => option.classList.add('disabled'));
+            submitButton.style.display = 'none';
+            
+            // Check if all correct answers were selected and no incorrect ones
+            const correctAnswers = question.correct;
+            const isCorrect = correctAnswers.length === selectedAnswers.length && 
+                            correctAnswers.every(answer => selectedAnswers.includes(answer));
+            
+            // Show correct answers
+            options.forEach((option, index) => {
+                if (correctAnswers.includes(index)) {
+                    option.classList.add('correct');
+                } else if (selectedAnswers.includes(index)) {
+                    option.classList.add('incorrect');
+                }
+            });
+            
+            if (isCorrect) {
+                score++;
+                feedback.textContent = '✓ Excellent! You selected all the correct answers!';
+                feedback.className = 'feedback correct show';
+            } else {
+                feedback.textContent = '✗ Not quite right. All four options were correct answers.';
+                feedback.className = 'feedback incorrect show';
+            }
+            
+            nextButton.classList.add('show');
+            updateScore();
+        }
+
+        function selectAnswer(selectedIndex) {
+            if (answered) return;
+            
+            answered = true;
+            const question = questions[currentQuestion];
+            const options = document.querySelectorAll('.option');
+            const feedback = document.getElementById('feedback');
+            const nextButton = document.getElementById('nextButton');
+            
+            options.forEach((option, index) => {
+                option.classList.add('disabled');
+                if (index === question.correct) {
+                    option.classList.add('correct');
+                } else if (index === selectedIndex) {
+                    option.classList.add('incorrect');
+                }
+            });
+            
+            if (selectedIndex === question.correct) {
+                score++;
+                feedback.textContent = '✓ Correct! Well done!';
+                feedback.className = 'feedback correct show';
+            } else {
+                feedback.textContent = `✗ Incorrect. The correct answer was: ${question.options[question.correct]}`;
+                feedback.className = 'feedback incorrect show';
+            }
+            
+            nextButton.classList.add('show');
+            updateScore();
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            
+            if (currentQuestion >= questions.length) {
+                showFinalScore();
+            } else {
+                loadQuestion();
+            }
+        }
+
+        function updateProgress() {
+            const progress = ((currentQuestion) / questions.length) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+        }
+
+        function updateScore() {
+            document.getElementById('scoreDisplay').textContent = `Score: ${score}/${questions.length}`;
+        }
+
+        function showFinalScore() {
+            document.getElementById('quizContent').style.display = 'none';
+            document.getElementById('finalScore').style.display = 'block';
+            
+            const percentage = Math.round((score / questions.length) * 100);
+            document.getElementById('finalScoreCircle').textContent = `${score}/${questions.length}`;
+            
+            let message = '';
+            if (percentage >= 90) {
+                message = '🏆 Outstanding! You have excellent knowledge of sport management!';
+            } else if (percentage >= 80) {
+                message = '🎉 Great job! You have a strong understanding of the topic!';
+            } else if (percentage >= 70) {
+                message = '👍 Good work! You have a solid grasp of the fundamentals!';
+            } else if (percentage >= 60) {
+                message = '📚 Not bad! Consider reviewing the material for better results.';
+            } else {
+                message = '💪 Keep studying! You\'ll improve with more practice.';
+            }
+            
+            document.getElementById('finalScoreText').textContent = `${percentage}% - ${message}`;
+        }
+
+        function restartQuiz() {
+            currentQuestion = 0;
+            score = 0;
+            answered = false;
+            selectedAnswers = [];
+            
+            document.getElementById('quizContent').style.display = 'block';
+            document.getElementById('finalScore').style.display = 'none';
+            
+            loadQuestion();
+        }
+
+        // Initialize the quiz
+        loadQuestion();
+    </script>
+</body>
+</html>
